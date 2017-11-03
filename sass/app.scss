@@ -20,6 +20,8 @@ a:focus {
 }
 
 .list-group {
+    display: block;
+    width: 100%;
     &>.list-group-item {
         a {
             display: block;
@@ -49,6 +51,7 @@ a:focus {
         &.active {
             &>a {
                 color: white;
+                padding-bottom: 15px;
             }
         }
     }
