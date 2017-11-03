@@ -1,0 +1,55 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    padding: 40px;
+    font-size: 16px;
+}
+
+a,
+a:hover,
+a:active,
+a:visited,
+a:focus {
+    text-decoration: none;
+    outline: none;
+    transition: all ease-in-out 350ms;
+}
+
+.list-group {
+    &>.list-group-item {
+        a {
+            display: block;
+        }
+        &>.list-group {
+            overflow: hidden;
+            max-height: 0;
+            transition: all ease-in-out 500ms;
+        }
+        &.immediate {
+            &>.list-group {
+                transition: none;
+            }
+        }
+        &.closing,
+        &.closed {
+            &>.list-group {
+                max-height: 0;
+            }
+        }
+        &.opening,
+        &.opened {
+            &>.list-group {
+                max-height: 600px;
+            }
+        }
+        &.active {
+            &>a {
+                color: white;
+            }
+        }
+    }
+}
