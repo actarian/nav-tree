@@ -14,45 +14,71 @@ a:hover,
 a:active,
 a:visited,
 a:focus {
+    color: inherit;
     text-decoration: none;
     outline: none;
     transition: all ease-in-out 350ms;
 }
 
-.list-group {
+a {
+    background: #f0f0f0;
+    color: #111111;
+}
+
+a:hover,
+a:active,
+.active>a {
+    background: #cccccc;
+    color: #111111;
+}
+
+.nav {
     display: block;
     width: 100%;
-    &>.list-group-item {
-        a {
+    &>.nav-item {
+        .nav-link {
             display: block;
         }
-        &>.list-group {
+        &>.nav {
             overflow: hidden;
             max-height: 0;
             transition: all ease-in-out 500ms;
         }
         &.immediate {
-            &>.list-group {
+            &>.nav {
                 transition: none;
             }
         }
         &.closing,
         &.closed {
-            &>.list-group {
+            &>.nav {
                 max-height: 0;
             }
         }
         &.opening,
         &.opened {
-            &>.list-group {
+            &>.nav {
                 max-height: 600px;
             }
         }
+        /*
         &.active {
-            &>a {
-                color: white;
+            &>.nav-link {
                 padding-bottom: 15px;
             }
         }
+        */
     }
+}
+
+.nav-0 {
+    font-weight: 900;
+}
+
+.nav-1 {
+    font-weight: 500;
+}
+
+.nav-2 {
+    font-weight: 200;
 }

@@ -1,0 +1,5 @@
+<!-- tree/item -->
+<a class="nav-link" href="#" ng-href="{{item.$nav.href}}" ng-bind="item.title">-</a>
+<ul class="nav nav-{{item.$nav.level}} flex-column" ng-if="item.items">
+    <li class="nav-item" ng-class="item.$nav.state" tree-item="item" ng-repeat="item in item.items track by $index"></li>
+</ul>

@@ -8,7 +8,7 @@
     app.config(['$locationProvider', function($locationProvider) {
 
         // HTML5 MODE url writing method (false: #/anchor/use, true: /html5/url/use)
-        $locationProvider.html5Mode(true);
+        $locationProvider.html5Mode(false);
         $locationProvider.hashPrefix('');
 
     }]);

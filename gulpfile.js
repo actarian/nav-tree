@@ -61,21 +61,21 @@ gulp.task('bundle:partials', function() {
             base: '.'
         })
         .pipe(rename(function(path) {
-            path.dirname = path.dirname.split('partials/').join('partials/framework/');
+            // path.dirname = path.dirname.split('partials/').join('partials/framework/');
             // path.basename += "-partial";
             path.extname = '';
         }))
-        .pipe(html2js('framework.partials.js', {
+        .pipe(html2js('nav-tree.partials.js', {
             adapter: 'angular',
             base: '.',
-            name: 'framework',
+            name: 'nav-tree',
             // fileHeaderString: '/* global angular: false */',
             indentString: '\t',
             // quoteChar: '\'',
             singleModule: true,
             useStrict: true,
         }))
-        .pipe(gulp.dest('./docs/dist')) // save .js
+        .pipe(gulp.dest('./docs/js/partials')) // save .js
         .pipe(sourcemaps.init())
         .pipe(uglify()) // { preserveComments: 'license' }
         .pipe(rename({
@@ -88,13 +88,13 @@ gulp.task('bundle', ['bundle:css', 'bundle:js', 'bundle:partials']);
 
 // WEBSERVER
 gulp.task('webserver', function() {
-    return gulp.src('./')
+    return gulp.src('./docs/')
         .pipe(webserver({
-            livereload: true,
-            directoryListing: true,
             port: 5555,
-            open: 'http://localhost:5555/docs/index.html',
-            fallback: 'docs/index.html'
+            fallback: 'index.html',
+            open: true,
+            livereload: true,
+            directoryListing: false,
         }));
 });
 
