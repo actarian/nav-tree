@@ -17,45 +17,53 @@ a:focus {
   outline: none;
   transition: all ease-in-out 350ms; }
 
-a {
-  background: #f0f0f0;
-  color: #111111; }
-
-a:hover,
-a:active,
-.active > a {
-  background: #cccccc;
-  color: #111111; }
-
 .nav {
   display: block;
   width: 100%; }
-  .nav > .nav-item {
-    /*
-        &.active {
-            &>.nav-link {
-                padding-bottom: 15px;
-            }
-        }
-        */ }
-    .nav > .nav-item .nav-link {
-      display: block; }
-    .nav > .nav-item > .nav {
-      overflow: hidden;
-      max-height: 0;
-      transition: all ease-in-out 500ms; }
-    .nav > .nav-item.immediate > .nav {
-      transition: none; }
-    .nav > .nav-item.closing > .nav, .nav > .nav-item.closed > .nav {
-      max-height: 0; }
-    .nav > .nav-item.opening > .nav, .nav > .nav-item.opened > .nav {
-      max-height: 600px; }
+  .nav > .nav-item > .nav {
+    overflow: hidden;
+    max-height: 0;
+    transition: all ease-in-out 500ms; }
+  .nav > .nav-item.immediate > .nav {
+    transition: none; }
+  .nav > .nav-item.closing > .nav, .nav > .nav-item.closed > .nav {
+    max-height: 0; }
+  .nav > .nav-item.opening > .nav, .nav > .nav-item.opened > .nav {
+    max-height: 600px; }
 
 .nav-0 {
-  font-weight: 900; }
+  border: 1px solid #0000ff;
+  border-radius: 6px; }
+  .nav-0 > .nav-item + .nav-item {
+    border-top: 1px solid #aaaaff; }
 
-.nav-1 {
-  font-weight: 500; }
-
-.nav-2 {
-  font-weight: 200; }
+.nav-link {
+  display: block;
+  padding: 10px 10px;
+  text-align: center; }
+  .nav-0 .nav-link {
+    font-weight: 900;
+    background: transparent;
+    color: #111111; }
+    .nav-0 .nav-link:hover, .nav-0 .nav-link:active,
+    .active > .nav-0 .nav-link {
+      background: transparent;
+      color: #111111; }
+  .nav-1 .nav-link {
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: #eeeeff;
+    color: #0000ff; }
+    .nav-1 .nav-link:hover, .nav-1 .nav-link:active,
+    .active > .nav-1 .nav-link {
+      background: #eeeeff;
+      color: #0000ff; }
+  .nav-2 .nav-link {
+    font-weight: 200;
+    font-size: 0.9rem;
+    background: transparent;
+    color: #0000ff; }
+    .nav-2 .nav-link:hover, .nav-2 .nav-link:active,
+    .active > .nav-2 .nav-link {
+      background: transparent;
+      color: #0000ff; }

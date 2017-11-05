@@ -1,8 +1,8 @@
 {
-    "name": "nav-tree",
+    "name": "nav",
     "version": "1.0.0",
-    "description": "nav-tree",
-    "main": "nav-tree.js",
+    "description": "nav",
+    "main": "nav.js",
     "dependencies": {},
     "devDependencies": {
         "gulp": "^3.9.1",

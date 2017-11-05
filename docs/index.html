@@ -8,8 +8,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="robots" content="noindex,nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>nav-tree</title>
-    <meta name="apple-mobile-web-app-title" content="nav-tree">
+    <title>nav</title>
+    <meta name="apple-mobile-web-app-title" content="nav">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
@@ -29,28 +29,32 @@
     <link href="css/app.min.css" rel="stylesheet" />
 </head>
 
-<body ng-controller="RootCtrl" ng-cloak>
-    <!-- <json-formatter json="model"></json-formatter> -->
-    <div nav-tree="items" on-link="onLink" on-nav="onNav"></div>
+<body ng-controller="RootCtrl">
 
-    <!-- tree/item -->
-    <script type="text/ng-template" id="partials/nav-tree/nav-tree">
+    <div nav="nav"></div>
+
+    <!-- <div nav="items" on-link="onLink" on-nav="onNav"></div> -->
+
+    <!--
+    <script type="text/ng-template" id="partials/nav/nav">
+        <div class="row">
+            <div class="col-md-6">
+                <json-formatter json="item"></json-formatter>
+            </div>
+            <div class="col-md-6">
+                <json-formatter json="$parent.selected"></json-formatter>
+            </div>
+        </div>
         <ul class="nav nav-{{item.$nav.level}} flex-column" ng-if="item.items">
-            <li class="nav-item" ng-class="item.$nav.state" nav-tree-item="item" ng-repeat="item in item.items track by $index"></li>
+            <li class="nav-item" ng-class="item.$nav.state" nav-item="item" ng-repeat="item in item.items track by $index"></li>
         </ul>
     </script>
-
-    <!-- tree/item -->
-    <script type="text/ng-template" id="partials/nav-tree/nav-tree-item">
-        <a class="nav-link" href="#" ng-href="{{item.$nav.href}}" ng-bind="item.title">-</a>
-        <ul class="nav nav-{{item.$nav.level}} flex-column" ng-if="item.items">
-            <li class="nav-item" ng-class="item.$nav.state" nav-tree-item="item" ng-repeat="item in item.items track by $index"></li>
-        </ul>
-    </script>
+    -->
 
     <script src="js/vendors.min.js" type="text/javascript"></script>
     <script src="js/app.min.js" type="text/javascript"></script>
-    <script src="js/partials/nav-tree.partials.js" type="text/javascript"></script>
+    <script src="js/partials/nav.partials.min.js" type="text/javascript"></script>
+
     <!-- FONTS -->
     <!--
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,700" rel="stylesheet">

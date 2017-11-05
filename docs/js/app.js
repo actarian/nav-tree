@@ -53,76 +53,185 @@
 
     var app = angular.module('app');
 
-    app.directive('navTree', ['$parse', function($parse) {
-        return {
-            restrict: 'A',
-            templateUrl: 'partials/nav-tree/nav-tree',
-            scope: {
-                items: '=navTree',
-            },
-            link: function(scope, element, attributes, model) {
-                var onLink = $parse(attributes.onLink)(scope.$parent);
-                var onNav = $parse(attributes.onNav)(scope.$parent);
+    app.controller('RootCtrl', ['$scope', '$http', '$timeout', '$promise', 'Nav', function($scope, $http, $timeout, $promise, Nav) {
 
-                var nav = {
-                    level: 0,
-                };
+        var nav = new Nav({
+            onLink: onLink,
+            onNav: onNav,
+        });
 
-                var item = {
-                    items: [],
-                    $nav: nav,
-                };
+        $http.get('json/menu.js').then(function(response) {
+            // $scope.items = response.data;
+            nav.setItems(response.data);
 
-                function getHref(item) {
-                    var url = item.url;
-                    if (onLink) {
-                        url = onLink(item);
-                    }
-                    url = url || '#';
-                    return url;
-                }
+        }, function(error) {
+            console.log('RootCtrl.error', error);
+        });
 
-                function add(item, parent) {
-                    item.$nav = {
-                        parent: parent,
-                        level: parent.$nav.level + 1,
-                        href: getHref(item),
-                        onNav: onNav,
-                        add: function(obj) {
-                            add(obj, item);
-                            item.items.push(obj);
-                        },
-                    };
-                }
+        function onLink(item) {
+            var link = item.url;
+            /*
+            link = link ? '#' + link : '#';
+            if (item.years) {
+                var key = String(item.years.to ? item.years.from + '-' + item.years.to : item.years.from); // da riattivare !!!
+                link = '/years/' + key;
+            }
+            */
+            console.log('RootCtrl.onLink', item.$nav.level, link);
+            return link;
+        }
 
-                function parse(items, parent) {
-                    if (items) {
-                        angular.forEach(items, function(item) {
-                            add(item, parent);
-                            parse(item.items, item);
+        function onNav(item) {
+            console.log('RootCtrl.onNav', item.$nav.level, item.$nav.link);
+            return false; // disable default link behaviour;
+        }
+
+        function onNavPromise(item) {
+            $scope.selected = item;
+            return $promise(function(promise) {
+                console.log('RootCtrl.onNavPromise', item.$nav.level, item.$nav.link);
+                $timeout(function() {
+                    if (item.items) {
+                        item.$nav.addItems({
+                            title: "Item",
                         });
                     }
-                }
+                    promise.resolve();
+                });
+            }); // a promise always disable default link behaviour;
+        }
 
-                scope.$watch('items', function(items) {
-                    if (items) {
-                        item.items = items;
-                        parse(item.items, item);
+        /*
+        $scope.onLink = onLink;
+        $scope.onNav = onNavPromise;
+        */
+
+        $scope.nav = nav;
+
+    }]);
+
+}());
+/* global angular */
+
+(function() {
+    "use strict";
+
+    var app = angular.module('app');
+
+    app.factory('Nav', function() {
+        function Nav(options) {
+            var nav = this;
+            var defaults = {
+                items: [],
+            }
+            angular.extend(nav, defaults);
+            if (options) {
+                angular.extend(nav, options);
+            }
+            nav.addNav(nav, null);
+        }
+        Nav.prototype = {
+            addNav: function(item, parent) {
+                var nav = this;
+                var $nav = {
+                    parent: parent || null,
+                    level: parent ? parent.$nav.level + 1 : 0,
+                    addItems: function(x) {
+                        nav.addItems(x, item);
+                    },
+                    onNav: nav.onNav,
+                };
+                item.$nav = $nav;
+                $nav.link = nav.getLink(item);
+            },
+            getLink: function(item) {
+                var link = null;
+                if (this.onLink) {
+                    link = this.onLink(item, item.$nav);
+                } else {
+                    link = item.link;
+                }
+                link = link || '#';
+                return link;
+            },
+            addItem: function(item, parent) {
+                var nav = this,
+                    onLink = nav.onLink,
+                    onNav = nav.onNav;
+                nav.addNav(item, parent);
+                if (parent) {
+                    parent.items = parent.items || [];
+                    parent.items.push(item);
+                }
+            },
+            addItems: function(itemOrItems, parent) {
+                var nav = this;
+                if (angular.isArray(itemOrItems)) {
+                    angular.forEach(itemOrItems, function(item) {
+                        nav.addItem(item, parent);
+                    });
+                } else {
+                    nav.addItem(itemOrItems, parent);
+                }
+            },
+            parse: function(items, parent) {
+                var nav = this;
+                if (items) {
+                    angular.forEach(items, function(item) {
+                        nav.addNav(item, parent);
+                        nav.parse(item.items, item);
+                    });
+                }
+            },
+            setItems: function(items) {
+                var nav = this;
+                nav.items = items;
+                nav.parse(items, nav);
+            },
+        };
+        return Nav;
+    });
+
+    app.directive('nav', ['$parse', 'Nav', function($parse, Nav) {
+        return {
+            restrict: 'A',
+            templateUrl: function(element, attributes) {
+                return attributes.template || 'partials/nav/nav';
+            },
+            scope: {
+                items: '=nav',
+            },
+            link: function(scope, element, attributes, model) {
+                scope.$watch('items', function(value) {
+                    // console.log(value instanceof Nav, value);
+                    if (value) {
+                        if (angular.isArray(value)) {
+                            var onLink = $parse(attributes.onLink)(scope.$parent);
+                            var onNav = $parse(attributes.onNav)(scope.$parent);
+                            var nav = new Nav({
+                                onLink: onLink,
+                                onNav: onNav
+                            });
+                            nav.setItems(value);
+                            scope.item = nav;
+
+                        } else if (value instanceof Nav) {
+                            scope.item = value;
+                        }
                     }
                 });
-
-                scope.item = item;
-
             }
         };
     }]);
 
-    app.directive('navTreeItem', ['$timeout', function($timeout) {
+    app.directive('navItem', ['$timeout', function($timeout) {
         return {
             restrict: 'A',
-            templateUrl: 'partials/nav-tree/nav-tree-item',
+            templateUrl: function(element, attributes) {
+                return attributes.template || 'partials/nav/nav-item';
+            },
             scope: {
-                item: '=navTreeItem',
+                item: '=navItem',
             },
             link: function(scope, element, attributes, model) {
                 var navItem = angular.element(element[0].querySelector('.nav-link'));
@@ -166,6 +275,7 @@
                 }
 
                 function itemToggle(item) {
+                    // console.log('itemToggle', item);
                     var state = item.$nav.state;
                     state.active = item.items ? !state.active : true;
                     if (state.active) {
@@ -184,14 +294,14 @@
                 }
 
                 function onTap(e) {
-                    // console.log('treeItem.onTap');
                     var item = scope.item;
+                    // console.log('Item.onTap', item);
                     var state = item.$nav.state;
                     if (state.active) {
                         output = false;
                         trigger();
                     } else if (item.$nav.onNav) {
-                        var promise = item.$nav.onNav(item);
+                        var promise = item.$nav.onNav(item, item.$nav);
                         if (promise && typeof promise.then === 'function') {
                             promise.then(function(resolved) {
                                 // go on
@@ -214,7 +324,7 @@
                 }
 
                 function onTouchStart(e) {
-                    // console.log('treeItem.onTouchStart', e);
+                    // console.log('Item.onTouchStart', e);
                     onTap(e);
                     navItem
                         .off('mousedown', onMouseDown);
@@ -222,7 +332,7 @@
                 }
 
                 function onMouseDown(e) {
-                    // console.log('treeItem.onMouseDown', e);
+                    // console.log('Item.onMouseDown', e);
                     onTap(e);
                     navItem
                         .off('touchstart', onTouchStart);
@@ -230,13 +340,13 @@
                 }
 
                 function onClick(e) {
-                    // console.log('treeItem.onClick', e);
+                    // console.log('Item.onClick', e);
                     return prevent(e);
                 }
 
                 function prevent(e) {
                     if (output === false) {
-                        // console.log('treeItem.prevent', e);
+                        // console.log('Item.prevent', e);
                         e.preventDefault();
                         // e.stopPropagation();
                         return false;
@@ -262,7 +372,6 @@
                 scope.$on('$destroy', function() {
                     removeListeners();
                 });
-
             }
         };
     }]);
@@ -275,50 +384,7 @@
 
     var app = angular.module('app');
 
-    app.controller('RootCtrl', ['$scope', '$q', '$http', '$timeout', function($scope, $q, $http, $timeout) {
-
-        $http.get('https://supahfunk.github.io/rossini/json/menu-rossini.js').then(function(response) {
-            $scope.items = response.data;
-
-        }, function(error) {
-            console.log('RootCtrl.error', error);
-        });
-
-        function onLink(item) {
-            var url = item.url;
-            url = url ? '#' + url : '#';
-            /*
-            if (item.years) {
-                var key = String(item.years.to ? item.years.from + '-' + item.years.to : item.years.from); // da riattivare !!!
-                url = '/years/' + key;
-            }
-            */
-            console.log('RootCtrl.onLink', url);
-            return url;
-        }
-
-        function onNav(item) {
-            console.log('RootCtrl.onNav', item, item.$nav.level);
-            return false; // disable default link behaviour;
-        }
-
-        function onNavPromise(item) {
-            return $promise(function(promise) {
-                console.log('RootCtrl.onNavPromise', item, item.$nav.level);
-                $timeout(function() {
-                    if (item.items) {
-                        item.$nav.add({
-                            title: "Azz",
-                        });
-                    }
-                    promise.resolve();
-                });
-            }); // a promise always disable default link behaviour;
-        }
-
-        $scope.onLink = onLink;
-        $scope.onNav = onNavPromise;
-
+    app.factory('$promise', ['$q', function($q) {
         function $promise(callback) {
             if (typeof callback !== 'function') {
                 throw ('promise resolve callback missing');
@@ -327,7 +393,7 @@
             callback(deferred);
             return deferred.promise;
         }
-
+        return $promise;
     }]);
 
 }());

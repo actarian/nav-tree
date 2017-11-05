@@ -14,8 +14,9 @@
             "app/app.config.js",
             "app/app.routes.js",
             "app/app.run.js",
-            "app/components/nav.tree.js",
-            "app/controllers/root.controller.js"
+            "app/controllers/root.controller.js",
+            "app/framework/nav/nav.component.js",
+            "app/framework/promise/promise.model.js"
         ],
         "outputFileName": "docs/js/app.js",
         "minify": {

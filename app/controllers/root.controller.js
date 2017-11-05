@@ -5,40 +5,47 @@
 
     var app = angular.module('app');
 
-    app.controller('RootCtrl', ['$scope', '$q', '$http', '$timeout', function($scope, $q, $http, $timeout) {
+    app.controller('RootCtrl', ['$scope', '$http', '$timeout', '$promise', 'Nav', function($scope, $http, $timeout, $promise, Nav) {
 
-        $http.get('https://supahfunk.github.io/rossini/json/menu-rossini.js').then(function(response) {
-            $scope.items = response.data;
+        var nav = new Nav({
+            onLink: onLink,
+            onNav: onNav,
+        });
+
+        $http.get('json/menu.js').then(function(response) {
+            // $scope.items = response.data;
+            nav.setItems(response.data);
 
         }, function(error) {
             console.log('RootCtrl.error', error);
         });
 
         function onLink(item) {
-            var url = item.url;
-            url = url ? '#' + url : '#';
+            var link = item.url;
             /*
+            link = link ? '#' + link : '#';
             if (item.years) {
                 var key = String(item.years.to ? item.years.from + '-' + item.years.to : item.years.from); // da riattivare !!!
-                url = '/years/' + key;
+                link = '/years/' + key;
             }
             */
-            console.log('RootCtrl.onLink', url);
-            return url;
+            console.log('RootCtrl.onLink', item.$nav.level, link);
+            return link;
         }
 
         function onNav(item) {
-            console.log('RootCtrl.onNav', item, item.$nav.level);
+            console.log('RootCtrl.onNav', item.$nav.level, item.$nav.link);
             return false; // disable default link behaviour;
         }
 
         function onNavPromise(item) {
+            $scope.selected = item;
             return $promise(function(promise) {
-                console.log('RootCtrl.onNavPromise', item, item.$nav.level);
+                console.log('RootCtrl.onNavPromise', item.$nav.level, item.$nav.link);
                 $timeout(function() {
                     if (item.items) {
-                        item.$nav.add({
-                            title: "Azz",
+                        item.$nav.addItems({
+                            title: "Item",
                         });
                     }
                     promise.resolve();
@@ -46,17 +53,12 @@
             }); // a promise always disable default link behaviour;
         }
 
+        /*
         $scope.onLink = onLink;
         $scope.onNav = onNavPromise;
+        */
 
-        function $promise(callback) {
-            if (typeof callback !== 'function') {
-                throw ('promise resolve callback missing');
-            }
-            var deferred = $q.defer();
-            callback(deferred);
-            return deferred.promise;
-        }
+        $scope.nav = nav;
 
     }]);
 

@@ -65,13 +65,13 @@ gulp.task('bundle:partials', function() {
             // path.basename += "-partial";
             path.extname = '';
         }))
-        .pipe(html2js('nav-tree.partials.js', {
+        .pipe(html2js('nav.partials.js', {
             adapter: 'angular',
             base: '.',
-            name: 'nav-tree',
-            // fileHeaderString: '/* global angular: false */',
-            indentString: '\t',
-            // quoteChar: '\'',
+            name: 'app',
+            fileHeaderString: '/* global angular: false */',
+            quoteChar: '\'',
+            indentString: '\t\t',
             singleModule: true,
             useStrict: true,
         }))
@@ -82,7 +82,7 @@ gulp.task('bundle:partials', function() {
             extname: '.min.js'
         }))
         .pipe(sourcemaps.write('./')) // save .map
-        .pipe(gulp.dest('./docs/dist')); // save .min.js
+        .pipe(gulp.dest('./docs/js/partials/')); // save .min.js
 });
 gulp.task('bundle', ['bundle:css', 'bundle:js', 'bundle:partials']);
 
