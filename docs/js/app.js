@@ -70,20 +70,14 @@
 
         function onLink(item) {
             var link = item.url;
-            /*
-            link = link ? '#' + link : '#';
-            if (item.years) {
-                var key = String(item.years.to ? item.years.from + '-' + item.years.to : item.years.from); // da riattivare !!!
-                link = '/years/' + key;
-            }
-            */
             console.log('RootCtrl.onLink', item.$nav.level, link);
             return link;
         }
 
         function onNav(item) {
             console.log('RootCtrl.onNav', item.$nav.level, item.$nav.link);
-            return false; // disable default link behaviour;
+            Nav.silent(item.$nav.link);
+            return false; // returning false disable default link behaviour;
         }
 
         function onNavPromise(item) {
@@ -101,11 +95,6 @@
             }); // a promise always disable default link behaviour;
         }
 
-        /*
-        $scope.onLink = onLink;
-        $scope.onNav = onNavPromise;
-        */
-
         $scope.nav = nav;
 
     }]);
@@ -118,7 +107,7 @@
 
     var app = angular.module('app');
 
-    app.factory('Nav', function() {
+    app.factory('Nav', ['$silent', function($silent) {
         function Nav(options) {
             var nav = this;
             var defaults = {
@@ -136,6 +125,7 @@
                 var $nav = {
                     parent: parent || null,
                     level: parent ? parent.$nav.level + 1 : 0,
+                    state: {},
                     addItems: function(x) {
                         nav.addItems(x, item);
                     },
@@ -143,6 +133,15 @@
                 };
                 item.$nav = $nav;
                 $nav.link = nav.getLink(item);
+                if ($nav.link === nav.path) {
+                    $nav.state.active = true;
+                    $nav.state.opened = true;
+                    while ($nav.parent) {
+                        $nav = $nav.parent.$nav;
+                        $nav.state.active = true;
+                        $nav.state.opened = true;
+                    }
+                }
             },
             getLink: function(item) {
                 var link = null;
@@ -151,7 +150,6 @@
                 } else {
                     link = item.link;
                 }
-                link = link || '#';
                 return link;
             },
             addItem: function(item, parent) {
@@ -185,12 +183,22 @@
             },
             setItems: function(items) {
                 var nav = this;
+                nav.path = $silent.path();
                 nav.items = items;
                 nav.parse(items, nav);
             },
         };
+        var statics = {
+            silent: function(path) {
+                $silent.silent(path);
+            },
+            path: function(path) {
+                $silent.path(path);
+            },
+        };
+        angular.extend(Nav, statics);
         return Nav;
-    });
+    }]);
 
     app.directive('nav', ['$parse', 'Nav', function($parse, Nav) {
         return {
@@ -235,8 +243,6 @@
             },
             link: function(scope, element, attributes, model) {
                 var navItem = angular.element(element[0].querySelector('.nav-link'));
-                var state = {};
-                scope.item.$nav.state = state;
 
                 var output;
 
@@ -376,6 +382,53 @@
         };
     }]);
 
+    app.factory('$silent', ['$rootScope', '$location', function($rootScope, $location) {
+        function $silent() {}
+
+        var $path;
+
+        function unlink() {
+            var listeners = $rootScope.$$listeners.$locationChangeSuccess;
+            angular.forEach(listeners, function(value, name) {
+                if (value === listener) {
+                    return;
+                }
+
+                function relink() {
+                    listeners[name] = value;
+                }
+                listeners[name] = relink; // temporary unlinking
+            });
+        }
+
+        function listener(e) {
+            // console.log('onLocationChangeSuccess', e);
+            if ($path === $location.path()) {
+                unlink();
+            }
+            $path = null;
+        }
+
+        var statics = {
+            silent: function(path, replace) {
+                // this.prev = $location.path(); ???
+                var location = $location.url(path);
+                if (replace) {
+                    location.replace();
+                }
+                $path = $location.path();
+            },
+            path: function(path) {
+                return $location.path(path);
+            },
+        };
+
+        angular.extend($silent, statics);
+        $rootScope.$$listeners.$locationChangeSuccess.unshift(listener);
+        // console.log('$rootScope.$$listeners.$locationChangeSuccess', $rootScope.$$listeners.$locationChangeSuccess);
+        return $silent;
+    }]);
+
 }());
 /* global angular */
 
@@ -393,6 +446,12 @@
             callback(deferred);
             return deferred.promise;
         }
+        var statics = {
+            all: function(promises) {
+                return $q.all(promises);
+            },
+        };
+        angular.extend($promise, statics);
         return $promise;
     }]);
 

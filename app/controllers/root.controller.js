@@ -22,20 +22,14 @@
 
         function onLink(item) {
             var link = item.url;
-            /*
-            link = link ? '#' + link : '#';
-            if (item.years) {
-                var key = String(item.years.to ? item.years.from + '-' + item.years.to : item.years.from); // da riattivare !!!
-                link = '/years/' + key;
-            }
-            */
             console.log('RootCtrl.onLink', item.$nav.level, link);
             return link;
         }
 
         function onNav(item) {
             console.log('RootCtrl.onNav', item.$nav.level, item.$nav.link);
-            return false; // disable default link behaviour;
+            Nav.silent(item.$nav.link);
+            return false; // returning false disable default link behaviour;
         }
 
         function onNavPromise(item) {
@@ -52,11 +46,6 @@
                 });
             }); // a promise always disable default link behaviour;
         }
-
-        /*
-        $scope.onLink = onLink;
-        $scope.onNav = onNavPromise;
-        */
 
         $scope.nav = nav;
 

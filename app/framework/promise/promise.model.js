@@ -14,6 +14,12 @@
             callback(deferred);
             return deferred.promise;
         }
+        var statics = {
+            all: function(promises) {
+                return $q.all(promises);
+            },
+        };
+        angular.extend($promise, statics);
         return $promise;
     }]);
 
