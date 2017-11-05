@@ -18,6 +18,7 @@
 
         }, function(error) {
             console.log('RootCtrl.error', error);
+
         });
 
         function onLink(item) {
@@ -39,7 +40,7 @@
                 $timeout(function() {
                     if (item.items) {
                         item.$nav.addItems({
-                            title: "Item",
+                            name: "Item",
                         });
                     }
                     promise.resolve();
